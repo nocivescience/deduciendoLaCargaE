@@ -46,7 +46,7 @@ class MyNumberRect(Scene):
         lin3.add(texto3)
         lin4.add(texto4)
         lin5.add(texto5)
-        lins=VGroup(lin1,lin2,lin3,lin4, lin5).set_color(RED).arrange(DOWN, buff=1).set(height=config['frame_height']-1).to_edge(UP,buff=0.1)
+        lins=VGroup(lin1,lin2,lin3,lin4, lin5).set_color(RED).arrange(DOWN, buff=1).set(height=config['frame_height']-2).to_edge(UP,buff=1)
         self.play(Create(lins))
         self.wait()
         x_value=ValueTracker(6)
@@ -55,7 +55,7 @@ class MyNumberRect(Scene):
         fx_value=ValueTracker(fx(x_value))
         gx_value=ValueTracker(gx(x_value))
         hx_value=ValueTracker(fx(x_value)+gx(x_value))
-        mx_value=fx(x_value)*10*np.cos(x_value)
+        mx_value=ValueTracker(fx(x_value)*10)
         decimal1=DecimalNumber(x_value.get_value(), font_size=30).add_updater(
             lambda t: t.set_value(x_value.get_value())
         )
@@ -68,31 +68,36 @@ class MyNumberRect(Scene):
         decimal4=DecimalNumber(hx_value.get_value(), font_size=30).add_updater(
             lambda t: t.set_value(hx_value.get_value())
         )
-        decimal5=DecimalNumber(mx_value, font_size=30).add_updater(
-            lambda t: t.set_value(mx_value)
+        decimal5=DecimalNumber(mx_value.get_value(), font_size=30).add_updater(
+            lambda t: t.set_value(mx_value.get_value())
         )
         decimal22=decimal2.copy()
         decimal11=decimal1.copy()
         decimal33=decimal3.copy()
         decimal44=decimal4.copy()
+        decimal55=decimal5.copy()
         my_tip=Arrow().rotate(3*PI/2).scale(0.6)
         my_tip.set_width(0.08)
         my_tip.set_height(0.8)
         my_tip2=my_tip.copy()
         my_tip3=my_tip.copy()
         my_tip4=my_tip.copy()
+        my_tip5=my_tip.copy()
         my_tip.add_updater(lambda m: m.next_to(lin1.n2p(x_value.get_value()),UP,buff=0))
         my_tip2.add_updater(lambda m: m.next_to(lin2.n2p(fx_value.get_value()),UP,buff=0))
         my_tip3.add_updater(lambda m: m.next_to(lin3.n2p(gx_value.get_value()),UP,buff=0))
         my_tip4.add_updater(lambda m: m.next_to(lin4.n2p(hx_value.get_value()),UP,buff=0))
+        my_tip5.add_updater(lambda m: m.next_to(lin5.n2p(mx_value.get_value()),UP,buff=0))
         decimal1.add_updater(lambda t: t.next_to(my_tip,UP,buff=0.2))
         decimal2.add_updater(lambda t: t.next_to(my_tip2,UP,buff=0.2))
         decimal3.add_updater(lambda t: t.next_to(my_tip3,UP,buff=0.2))
         decimal4.add_updater(lambda t: t.next_to(my_tip4,UP,buff=0.2)) 
+        decimal5.add_updater(lambda t: t.next_to(my_tip5,UP,buff=0.2))
         self.play(Create(my_tip),Create(decimal1))
         self.play(Create(my_tip2),Create(decimal2))
         self.play(Create(my_tip3),Create(decimal3))
         self.play(Create(my_tip4),Create(decimal4))
+        self.play(Create(my_tip5),Create(decimal5))
         self.wait()
         time=0
         FARADAY=VGroup(
@@ -111,11 +116,16 @@ class MyNumberRect(Scene):
             Text('Años:'),
             decimal44
         ).arrange(RIGHT,buff=0.1)
-        myConstants=VGroup(FARADAY,AVOGRADO,FUENTES,AANI).arrange(RIGHT,buff=0.4).to_edge(DOWN,buff=0.14)
+        RICCI=VGroup(
+            Text('Ricci:'),
+            decimal55
+        ).arrange(RIGHT,buff=0.1)
+        myConstants=VGroup(FARADAY,AVOGRADO,FUENTES,AANI,RICCI).arrange(RIGHT,buff=0.4).to_edge(DOWN,buff=0.14)
         FARADAY[0].scale(0.6)
         AVOGRADO[0].scale(0.6)
         FUENTES[0].scale(0.6)
         AANI[0].scale(0.6)
+        RICCI[0].scale(0.6)
         myConstants.set_width(config['frame_width'])
         self.play(Write(myConstants))
         while time<10:
@@ -125,6 +135,7 @@ class MyNumberRect(Scene):
             random2=np.random.uniform(-1,1)
             random3=np.random.uniform(-1,1)
             random4=np.random.uniform(-1,1)
+            random5=np.random.uniform(-1,1)
             self.play(
                 x_value.animate.set_value(6+random1),
                 decimal1.animate.set_value(6+random1),
@@ -137,5 +148,7 @@ class MyNumberRect(Scene):
                 hx_value.animate.set_value(1.6+1.2+random2+random3),
                 decimal4.animate.set_value(1.6+1.2+random2+random3),
                 decimal44.animate.set_value(random2+random3),
+                mx_value.animate.set_value((1.6+random2)*10*np.cos(6+random1)),
+                decimal5.animate.set_value((1.6+random2)*10*np.cos(6+random1)),
             run_time=my_time,rate_functio=smooth)
         self.wait()
